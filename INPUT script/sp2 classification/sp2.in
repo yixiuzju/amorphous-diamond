@@ -1,0 +1,81 @@
+label loop1
+units        metal
+boundary     s s s
+atom_style   atomic
+atom_modify    map  yes
+
+
+variable name index dat1 dat2 dat3 dat4 dat5 dat6 dat7 dat8 dat9 dat10 dat11 dat12 dat13 dat14 dat15 dat16 dat17 dat18 dat19 dat20 dat21 dat22 dat23 dat24 dat25 dat26 dat27 dat28 dat29 dat30 dat31 dat32 dat33 dat34 dat35 dat36 dat37 dat38 dat39 dat40 dat41 dat42 dat43 dat44 dat45 dat46 dat47 dat48 dat49 dat50 dat51 dat52 dat53 dat54 dat55 dat56 dat57 dat58 dat59 dat60 dat61 dat62 dat63 dat64
+read_data   ${name}.data
+
+label loop2
+clear
+units        metal
+boundary     s s s
+atom_style   atomic
+atom_modify    map  yes
+read_data   ${name}.data
+thermo_style custom xlo xhi ylo yhi zlo zhi
+region 0 block INF INF INF INF INF INF
+group 0 region 0
+
+variable  Natom  equal count(0)
+variable  NA  equal ${Natom}
+variable j loop ${Natom}
+variable ax equal xlo+1.86
+variable bx equal xhi-1.86
+variable ay equal ylo+1.86
+variable by equal yhi-1.86
+variable az equal zlo+1.86
+variable bz equal zhi-1.86
+variable d equal x[$j]
+variable e equal y[$j]
+variable f equal z[$j]
+variable cx equal $d
+variable cy equal $e
+variable cz equal $f
+
+if  "$j==${NA} && $d>=${ax} && $d<=${bx} && $e>=${ay} && $e<=${by} && $f>=${az} && $f<=${bz}" then &
+"next name"
+
+if  "$d>=${ax} && $d<=${bx} && $e>=${ay} && $e<=${by} && $f>=${az} && $f<=${bz}" then &
+"region 1 sphere ${d} ${e} ${f} 1.86 side in" &
+"group 1 region 1 " &
+"region 11 sphere ${d} ${e} ${f} 1 side in" &
+"group 11 region 11 " &
+elif $j==${NA} &
+"next name" &
+"jump 3-SRO-center-energy.in loop3" &
+else &
+"next j" &
+"clear" &
+"jump 3-SRO-center-energy.in loop2" 
+
+variable N equal count(1)
+
+if  " ${N} == 4 " then &
+"pair_style  airebo/morse 3.0 1 1" &
+"pair_coeff  * * CH.airebo-m C C C " &
+"compute 1 11 ke/atom" &
+"compute 11 11 reduce sum c_1" &
+"compute 2 11 pe/atom" &
+"compute 22 11 reduce sum c_2" &
+"thermo  10" &
+"thermo_style custom  step c_11  c_22" &
+"run 0" &
+"variable Etotal equal (c_11+c_22)" &
+"print '${name} $j ${Etotal}' append  3-Etotal-center.text screen yes"
+label loop3
+next j
+jump 3-SRO-center-energy.in loop2
+
+
+clear
+jump 3-SRO-center-energy.in loop1
+
+
+
+
+
+
+

@@ -1,0 +1,26 @@
+units        metal
+boundary     p p p
+atom_style   atomic
+atom_modify    map  yes
+
+
+read_data   diamond_a2.data 
+
+
+pair_style  airebo/morse 3.0 1 1
+pair_coeff  * * CH.airebo-m C 
+
+
+compute 1 all coord/atom  cutoff 1.88
+compute 2 all reduce sum c_1
+variable coordatom equal c_2/900
+
+
+thermo  10
+thermo_style custom  step   v_coordatom
+
+run 10
+
+
+
+

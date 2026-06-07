@@ -1,0 +1,271 @@
+label loop1
+units        metal
+#定义模拟体系单位
+boundary     s s s
+#定义边界条件
+atom_style   atomic
+#定义体系内容
+atom_modify    map  yes
+#允许具有特定id的原子信息被寻找，默认atomic类型的map是no，由于后面需要每个原子信息来写判据，所以改成yes。
+
+
+read_data   diamond_a.data 
+#读取文件
+
+variable j loop 10648
+variable a equal -0.28094561783507643+4
+variable b equal 39.44094561783822-4
+variable c equal type[$j]
+variable d equal x[$j]
+variable e equal y[$j]
+variable f equal z[$j]
+variable ddd equal $d
+variable eee equal $e
+variable fff equal $f
+
+#定义近邻区域
+if  "$c == 4 && $d>=$a && $d<=$b && $e>=$a && $e<=$b && $f>=$a && $f<=$b" then &
+"write_data dat_$j.data" &
+"region 1 sphere $d $e $f 1.8 side out" &
+"region 2 sphere $d $e $f 1 side in" &
+"region 3 union 2 1 2" &
+"delete_atoms region 3" &
+else &
+"next j" &
+"clear" &
+"jump Get-image-3-SRO-center.in loop1" 
+
+if  "$j == 2979 || $j == 9733 " then &
+"next j" &
+"clear" &
+"jump Get-image-3-SRO-center.in loop1" 
+
+#定义近邻坐标
+label loop2
+variable i loop 3
+variable x equal x[$i]
+variable y equal y[$i]
+variable z equal z[$i]
+variable $ix equal $x
+variable $iy equal $y
+variable $iz equal $z
+next i
+jump Get-image-3-SRO-center.in loop2
+
+clear
+units        metal
+boundary     s s s
+atom_style   atomic
+atom_modify    map  yes
+
+#定义次近邻区域
+read_data   diamond_a.data
+label loop3
+region shelln1i sphere ${1x} ${1y} ${1z} 1.8 side in
+region shelln1o sphere ${1x} ${1y} ${1z} 1 side out
+region shelln1 intersect 2 shelln1i shelln1o
+region shelln2i sphere ${2x} ${2y} ${2z} 1.8 side in
+region shelln2o sphere ${2x} ${2y} ${2z} 1 side out
+region shelln2 intersect 2 shelln2i shelln2o
+region shelln3i sphere ${3x} ${3y} ${3z} 1.8 side in
+region shelln3o sphere ${3x} ${3y} ${3z} 1 side out
+region shelln3 intersect 2 shelln3i shelln3o
+region core sphere ${ddd} ${eee} ${fff} 1 side in
+delete_atoms region core
+region shelln union 3 shelln1 shelln2 shelln3
+group shelln region shelln
+group boundary subtract all shelln
+delete_atoms group boundary
+variable  Nshelln  equal count(shelln)
+
+
+#定义次近邻坐标
+variable k loop ${Nshelln}
+variable g equal type[$k]
+variable gg equal $g
+variable x equal x[$k]
+variable y equal y[$k]
+variable z equal z[$k]
+variable nx equal $x
+variable ny equal $y
+variable nz equal $z
+clear
+units     metal
+boundary     s s s
+atom_style   atomic
+atom_modify    map  yes
+read_data   dat_$j.data
+if  "${gg} == 2 " then &
+"region $k1 sphere ${nx} ${ny} ${nz} 1.8 side in" &
+"set region $k1 type 9" &
+"region $k11 sphere ${nx} ${ny} ${nz} 1 side in" &
+"set region $k11 type 8" &
+"write_data dat_$j.data" 
+next k
+jump Get-image-3-SRO-center.in loop3
+
+
+region 4 sphere ${d} ${e} ${f} 1.8 side in 
+set region 4 type 10
+region 44 sphere ${d} ${e} ${f} 1 side in 
+set region 44 type 8
+region 5 sphere ${d} ${e} ${f} 6 side out
+delete_atoms region 5
+write_data dat_$j.data
+clear
+units     metal
+boundary     p p p
+atom_style   atomic
+atom_modify    map  yes
+read_data   dat_$j.data
+group 5 type 1 2 3 4 5 6 7
+delete_atoms group 5
+set type 10 type 5
+set type 9 type 3
+set type 8 type 2
+region 5 sphere ${ddd} ${eee} ${fff} 1 side in 
+set region 5 type 4
+write_data dat_$j.data
+
+clear
+units     metal
+boundary     s s s
+atom_style   atomic
+atom_modify    map  yes
+read_data   dat_$j.data
+
+group 6 type 1 2 3 4 
+delete_atoms group 6
+
+label loop4
+variable o loop 3
+variable x equal x[$o]
+variable y equal y[$o]
+variable z equal z[$o]
+variable $ox equal $x
+variable $oy equal $y
+variable $oz equal $z
+next o
+jump Get-image-3-SRO-center.in loop4
+
+clear
+units        metal
+boundary     s s s
+atom_style   atomic
+atom_modify    map  yes
+read_data   dat_$j.data
+group 7 type 1 3 4 
+delete_atoms group 7
+region shelln11i sphere ${1x} ${1y} ${1z} 1.8 side in
+region shelln11o sphere ${1x} ${1y} ${1z} 1 side out
+region shelln11 intersect 2 shelln11i shelln11o
+group type21 region shelln11
+region shelln22i sphere ${2x} ${2y} ${2z} 1.8 side in
+region shelln22o sphere ${2x} ${2y} ${2z} 1 side out
+region shelln22 intersect 2 shelln22i shelln22o
+group type22 region shelln22
+region shelln33i sphere ${3x} ${3y} ${3z} 1.8 side in
+region shelln33o sphere ${3x} ${3y} ${3z} 1 side out
+region shelln33 intersect 2 shelln33i shelln33o
+group type23 region shelln33
+
+variable  Ntype21  equal count(type21)
+variable  Ntype22  equal count(type22)
+variable  Ntype23  equal count(type23)
+
+group 7 type 2
+variable  Ntype2  equal count(7)
+
+if  "${Ntype21}>=${Ntype22} && ${Ntype21}>=${Ntype23} && ${Ntype22}>=${Ntype23}" then &
+"variable  1  equal ${Ntype21}" &
+"variable  2  equal ${Ntype22}" &
+"variable  3  equal ${Ntype23}" &
+
+if "${Ntype21}>=${Ntype22} && ${Ntype21}>=${Ntype23} && ${Ntype22}<${Ntype23}"  then &
+"variable  1  equal ${Ntype21}" &
+"variable  3  equal ${Ntype22}" &
+"variable  2  equal ${Ntype23}" &
+
+if  "${Ntype22}>=${Ntype21} && ${Ntype22}>=${Ntype23} && ${Ntype21}>=${Ntype23}" then &
+"variable  1  equal ${Ntype22}" &
+"variable  2  equal ${Ntype21}" &
+"variable  3  equal ${Ntype23}" &
+
+if "${Ntype22}>=${Ntype21} && ${Ntype22}>=${Ntype23} && ${Ntype21}<${Ntype23}" then &
+"variable  1  equal ${Ntype22}" &
+"variable  3  equal ${Ntype21}" &
+"variable  2  equal ${Ntype23}" &
+
+if  "${Ntype23}>=${Ntype21} && ${Ntype23}>=${Ntype22} && ${Ntype21}>=${Ntype22}" then &
+"variable  1  equal ${Ntype23}" &
+"variable  2  equal ${Ntype21}" &
+"variable  3  equal ${Ntype22}" &
+
+if "${Ntype23}>=${Ntype21} && ${Ntype23}>=${Ntype22} && ${Ntype21}<${Ntype22}" then &
+"variable  1  equal ${Ntype23}" &
+"variable  3  equal ${Ntype21}" &
+"variable  2  equal ${Ntype22}" &
+
+variable  total  equal ${1}+${2}+${3}
+variable  difference  equal ${Ntype2}-${total}
+
+print "$j ${Ntype2} ${total} ${difference} ${1} ${2} ${3}"  append  Ntype2.text screen yes
+
+if "${Ntype2} == 2 && ${1}==1 && ${2}==1 && ${3}==0 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-2-110.text screen yes"
+
+if "${Ntype2} == 3 && ${1}==1 && ${2}==1 && ${3}==1 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-3-111.text screen yes"
+
+if "${Ntype2} == 3 && ${1}==2 && ${2}==1 && ${3}==0 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-3-210.text screen yes"
+
+if "${Ntype2} == 4 && ${1}==2 && ${2}==2 && ${3}==0 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-4-220.text screen yes"
+
+if "${Ntype2} == 4 && ${1}==2 && ${2}==1 && ${3}==1 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-4-211.text screen yes"
+
+if "${Ntype2} == 4 && ${1}==3 && ${2}==1 && ${3}==0 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-4-310.text screen yes"
+
+if "${Ntype2} == 5 && ${1}==2 && ${2}==2 && ${3}==1 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-5-221.text screen yes"
+
+if "${Ntype2} == 5 && ${1}==3 && ${2}==1 && ${3}==1 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-5-311.text screen yes"
+
+if "${Ntype2} == 5 && ${1}==3 && ${2}==2 && ${3}==0 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-5-320.text screen yes"
+
+if "${Ntype2} == 6 && ${1}==2 && ${2}==2 && ${3}==2 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-6-222.text screen yes"
+
+if "${Ntype2} == 6 && ${1}==3 && ${2}==2 && ${3}==1 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-6-321.text screen yes"
+
+if "${Ntype2} == 6 && ${1}==3 && ${2}==3 && ${3}==0 " then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-6-330.text screen yes"
+
+if "${Ntype2} == 7 && ${1}==3 && ${2}==3 && ${3}==1" then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-7-331.text screen yes"
+
+if "${Ntype2} == 7 && ${1}==3 && ${2}==2 && ${3}==2" then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-7-322.text screen yes"
+
+if "${Ntype2} == 8 && ${1}==3 && ${2}==3 && ${3}==2" then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-8-332.text screen yes"
+
+if "${Ntype2} == 9 && ${1}==3 && ${2}==3 && ${3}==3" then &
+"print '$j ${Ntype2} ${1} ${2} ${3}'  append  Ntype2-9-333.text screen yes"
+
+next j
+clear
+jump get-image-3-SRO-center.in loop1
+
+
+
+
+
+
+
