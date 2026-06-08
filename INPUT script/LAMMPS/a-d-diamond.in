@@ -1,0 +1,64 @@
+echo         screen
+units        metal
+atom_style   atomic
+dimension    3
+boundary     p  p  p
+timestep     0.0005
+neighbor     2.0 bin
+neigh_modify every 20 delay 0 check yes 
+neigh_modify one 3000
+read_data   diamond.data
+pair_style  airebo/morse 3.0 1 1 
+pair_coeff  * * CH.airebo-m C 
+
+min_style cg
+minimize 1.0e-15 1.0e-15 50000 50000
+
+velocity    all  create 1 77798 dist gaussian 
+
+fix    1 all   npt  temp 6000 6000 0.05 iso 0 0 0.5 
+thermo   100
+thermo_style custom   etotal temp press lx ly lz 
+run          150000
+unfix 1
+
+fix    1 all   npt  temp 6000 6000 0.05 iso 600000 600000 0.5 
+thermo   100
+thermo_style custom   etotal temp press lx ly lz 
+run          100000 
+unfix 1
+
+write_data  diamond_a1.data
+
+
+fix    1 all  npt temp 300 300 0.05 iso 600000 600000 0.5
+thermo   100
+thermo_style custom   etotal  temp press lx ly lz 
+run         3000 
+unfix 1
+
+fix    1 all  npt temp 300 300 0.05 iso 0 0 0.5
+thermo   100
+thermo_style custom   etotal  temp press lx ly lz 
+run         3000 
+unfix 1
+
+write_data  diamond_a2.data
+
+compute 1 all coord/atom cutoff 1.9
+compute 2 all reduce sum c_1
+variable coordatom equal c_2/1054560
+
+thermo 10
+thermo_style custom  step v_coordatom
+
+run 100
+
+
+
+
+
+
+
+
+

@@ -1,16 +1,11 @@
 label loop1
 units        metal
-#定义模拟体系单位
 boundary     s s s
-#定义边界条件
 atom_style   atomic
-#定义体系内容
 atom_modify    map  yes
-#允许具有特定id的原子信息被寻找，默认atomic类型的map是no，由于后面需要每个原子信息来写判据，所以改成yes。
 
-variable name index  dat1 dat2 dat3 dat4 dat5 dat6 dat7 dat8 dat9 
+variable name index  dat1 dat2 dat3 dat4 dat5 dat6 dat7 dat8 dat9 dat10 dat11 dat12 dat13 dat14 dat15 dat16 dat17 dat18 dat19 dat20 dat21 dat22 dat23 dat24 dat25 dat26 dat27 dat28 dat29 dat30 dat31 dat32 dat33 dat34 dat35 dat36 dat37 dat38 dat39 dat40 dat41 dat42 dat43 dat44 dat45 dat46 dat47 dat48 dat49 dat50 dat51 dat52 dat53 dat54 dat55 dat56 dat57 dat58 dat59 dat60 dat61 dat62 dat63 dat64
 read_data   ${name}a.data
-#读取文件
 
 label loop2
 clear
@@ -48,7 +43,6 @@ variable cy equal $e
 variable cz equal $f
 
 
-#定义近邻区域
 if  "$c == 4 && $d>=${ax} && $d<=${bx} && $e>=${ay} && $e<=${by} && $f>=${az} && $f<=${bz}" then &
 "write_data ${name}_${N}.data" &
 "region 1 sphere ${cx} ${cy} ${cz} 1.86 side out" &
@@ -63,7 +57,6 @@ else &
 "clear" &
 "jump a-d-BOP.in loop2"  
 
-#定义近邻坐标
 label loop4
 variable i loop 3
 variable x equal x[$i]
@@ -81,7 +74,6 @@ boundary     s s s
 atom_style   atomic
 atom_modify    map  yes
 
-#定义次近邻区域
 read_data   ${name}a.data
 label loop5
 region shelln1i sphere ${1x} ${1y} ${1z} 1.86 side in
@@ -101,7 +93,6 @@ group boundary subtract all shelln
 delete_atoms group boundary
 variable  Nshelln  equal count(shelln)
 
-#定义次近邻坐标
 variable k loop ${Nshelln}
 variable g equal type[$k]
 variable gg equal $g
@@ -170,7 +161,6 @@ variable mx equal $x
 variable my equal $y
 variable mz equal $z
 
-#势函数设置
 pair_style  airebo/morse 3.0 1 1
 pair_coeff  * * CH.airebo-m C C C C C C C C C C
 

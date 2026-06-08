@@ -1,40 +1,40 @@
 SYSTEM = Amorphous diamond
 LWAVE = .F.
 LCHARG = .F.
-ISTART =  0 #不从WAVECAR读取波函数，设为0
+ISTART =  0 
 NCORE = 16
 
 #Calculationaccuracy
-ENCUT  = 400.00 #默认等于POTCAR中最大的ENMAX，决定了平面波基组的截断能，不同体系有所差异，一般设成ENMAX的1.3倍。
-PREC   =  Normal #Prec指定了精度模式，Prec=Normal可以用于大多数常规计算。
-LREAL  =  Auto #决定投影算符是在实空间还是倒空间计算，原子数超过20可以设置为AUTO，AUTO是在实空间计算。
+ENCUT  = 400.00 
+PREC   =  Normal 
+LREAL  =  Auto 
 
 #Elctron density
-ISPIN  = 1 #非自旋极化，即每个轨道上自旋向上和自旋向下的电子数量相等。适用于非磁性体系。
-ISMEAR = 0 #ISMEAR确定了每个轨道的部分占据如何设定，设为0为Gaussian smearing，在大多数情况下，Gaussian smearing 可以得到比较合理的结果。
-SIGMA  =  0.05 #SIGMA 相当于展宽，用高斯Gaussian smearing配合小的SIGMA=0.03-0.05，一般情况问题不大。
-NELM   =  40 #NELM设置了最大的电子自洽迭代步数，最大的电子收敛为60步，过了60步还不收敛就必须停止。
-NELMIN = 4 #NELM设置了最小的电子自洽迭代步数，一般用6到8
-EDIFF  =  1E-03 #EDIFF参数用于控制电子总能量收敛的精度，能量的相对变化率必须小于或等于EDIFF的值，才会停止计算。
-ALGO   = Very Fast #推荐使用的电子优化算法
+ISPIN  = 1 
+ISMEAR = 0 
+SIGMA  =  0.05 
+NELM   =  40 
+NELMIN = 4 
+EDIFF  =  1E-03 
+ALGO   = Very Fast 
 
 #Atomic relaxation
-NSW = 500 #NSW设置了最大的离子步数（粒子运动的最大步数）。一般我们会在优化过程中设置其为一个比较大的整数。  
-IBRION = 0 #INRION=0表示执行分子动力学模拟
-POTIM = 1 #在产生新结构时，控制原子移动的距离。VASP会根据原子上的受力以及POTIM计算原子移动的距离。
+NSW = 50   
+IBRION = 0 
+POTIM = 1 
 
 
 #Symmetry and temperature
-ISYM = 0 #设置ISYM=0时，VASP不使用对称性，并相应减少了布里渊区的采样，一般在算分子动力学的时候使用。
+ISYM = 0 
 TEBEG = 300
 TEEND = 300
 PSTRESS = 0
 
 #Ensemble
-SMASS = 0 #SMASS控制着从头算分子动力学过程中的速度，如果SMASS=0，VASP会自动设置对应于40个时间步长的温度振荡周期。
-MDALGO = 3 #MADLGO=2，Nose-Hoover 温控器。
-ISIF = 3 #确定是否计算应力张量以及哪些离子自由度是变化的，ISIF=3表示所有的指标都为yes。
+SMASS = 0 
+MDALGO = 3 
+ISIF = 3 
 LANGEVIN_GAMMA = 10.0
-LANGEVIN_GAMMA_L = 10.0  #LANGEVIN_GAMMA说明了当使用朗之万温控器时候的对于原子的自由度的比例系数。
-PMASS = 1000 #在Parrinello-Rahman动力学情况下，PMASS将一个虚构的质量分配给晶格自由度。
-MAXMIX = 40 #存储在broyden混合器中的步骤数，官方推荐对于分子动力学以及弛豫设置。
+LANGEVIN_GAMMA_L = 10.0 
+PMASS = 1000 
+MAXMIX = 40 
